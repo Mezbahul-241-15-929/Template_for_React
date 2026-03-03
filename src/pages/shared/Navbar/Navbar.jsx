@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import { FiMenu, FiX, FiHome, FiShoppingCart, FiInfo, FiMail } from 'react-icons/fi';
 import { AiOutlineUser } from 'react-icons/ai';
 import { useState } from 'react';
@@ -9,10 +9,9 @@ const Navbar = () => {
 
     // Central Tailwind CSS classes
     const getLinkClass = (isActive) =>
-        `flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 ${
-            isActive
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                : 'text-gray-700 hover:bg-gray-100'
+        `flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 ${isActive
+            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+            : 'text-gray-700 hover:bg-gray-100'
         }`;
 
     const signInBtnClass = 'px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2';
@@ -72,11 +71,13 @@ const Navbar = () => {
                     </div>
 
                     {/* Right Side Actions */}
-                    <div className="hidden md:flex items-center gap-4">
-                        <button className={signInBtnClass}>
-                            <AiOutlineUser size={20} /> Sign In
-                        </button>
-                    </div>
+                    <Link to='login'>
+                        <div className="hidden md:flex items-center gap-4">
+                            <button className={signInBtnClass}>
+                                <AiOutlineUser size={20} /> Sign In
+                            </button>
+                        </div>
+                    </Link>
 
                     {/* Mobile Menu Button */}
                     <div className="md:hidden">
