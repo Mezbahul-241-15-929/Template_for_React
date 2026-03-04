@@ -1,19 +1,20 @@
 import React from 'react';
 import useAuth from '../../../hooks/useAuth';
-// import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 // import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const SocialLogin = () => {
     const { signInGoogle } = useAuth();
     // const axiosSecure = useAxiosSecure();
-    // const location = useLocation();
-    // const navigate = useNavigate();
+    const location = useLocation();
+    const navigate = useNavigate();
 
 
     const handleGoogleSignIn = () => {
         signInGoogle()
             .then(result => {
                 console.log(result.user);
+                navigate(location.state || '/');
                 
 
                 // create user in the database

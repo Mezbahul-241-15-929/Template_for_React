@@ -2,10 +2,21 @@ import { Link, NavLink } from 'react-router';
 import { FiMenu, FiX, FiHome, FiShoppingCart, FiInfo, FiMail } from 'react-icons/fi';
 import { AiOutlineUser } from 'react-icons/ai';
 import { useState } from 'react';
+import useAuth from '../../../hooks/useAuth';
 
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { user, logOut } = useAuth();
+
+    const handleSignOut = () => {
+        logOut().then(() => {
+            console.log('singed out user')
+        })
+            .catch(error => {
+                console.log(error)
+            })
+    }
 
     // Central Tailwind CSS classes
     const getLinkClass = (isActive) =>
@@ -71,13 +82,20 @@ const Navbar = () => {
                     </div>
 
                     {/* Right Side Actions */}
-                    <Link to='login'>
-                        <div className="hidden md:flex items-center gap-4">
-                            <button className={signInBtnClass}>
-                                <AiOutlineUser size={20} /> Sign In
-                            </button>
+                    {
+                        user ? <div className='hidden md:flex items-center gap-4'>
+                            <button onClick={handleSignOut} className={signInBtnClass}>Sign Out</button>
                         </div>
-                    </Link>
+                            :
+                            <Link to='login'>
+                                <div className="hidden md:flex items-center gap-4">
+                                    <button className={signInBtnClass}>
+                                        <AiOutlineUser size={20} /> Sign In
+                                    </button>
+                                </div>
+                            </Link>
+                    }
+
 
                     {/* Mobile Menu Button */}
                     <div className="md:hidden">

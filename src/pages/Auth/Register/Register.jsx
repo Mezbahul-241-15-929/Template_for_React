@@ -6,20 +6,24 @@ import useAuth from '../../../hooks/useAuth';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-        const { registerUser } = useAuth();
+    const { registerUser } = useAuth();
 
-    
+    const location = useLocation();
+    const navigate = useNavigate();
+
+
 
     const handleRegistration = (data) => {
 
-      console.log(data);
-      registerUser(data.email,data.password)
-      .then(result=>{
-        console.log(result.user);
-      })
-      .catch(error=>{
-        console.log(error);
-      })
+        console.log(data);
+        registerUser(data.email, data.password)
+            .then(result => {
+                console.log(result.user);
+                navigate(location.state || '/');
+            })
+            .catch(error => {
+                console.log(error);
+            })
 
     }
 
