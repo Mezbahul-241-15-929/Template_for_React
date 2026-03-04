@@ -1,30 +1,71 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import useAuth from '../../../hooks/useAuth';
 import { Link, useLocation, useNavigate } from 'react-router';
 import SocialLogin from '../SocialLogin/SocialLogin';
-import useAuth from '../../../hooks/useAuth';
+import axios from 'axios';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { registerUser } = useAuth();
-
+    const { registerUser, updateUserProfile } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-
+    const axiosSecure = useAxiosSecure();
 
 
     const handleRegistration = (data) => {
 
-        console.log(data);
+        const profileImg = data.photo[0];
+
         registerUser(data.email, data.password)
-            .then(result => {
-                console.log(result.user);
-                navigate(location.state || '/');
+            .then(() => {
+
+                // 1. store the image in form data
+                const formData = new FormData();
+                formData.append('image', profileImg);
+
+                // 2. send the photo to store and get the ul
+                const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`
+
+                axios.post(image_API_URL, formData)
+                    .then(res => {
+                        const photoURL = res.data.data.url;
+
+                        // create user in the database
+                        const userInfo = {
+                            email: data.email,
+                            displayName: data.name,
+                            photoURL: photoURL
+                        }
+                        axiosSecure.post('/users', userInfo)
+                            .then(res => {
+                                if (res.data.insertedId) {
+                                    console.log('user created in the database');
+                                }
+                            })
+
+
+                        // update user profile to firebase
+                        const userProfile = {
+                            displayName: data.name,
+                            photoURL: photoURL
+                        }
+
+                        updateUserProfile(userProfile)
+                            .then(() => {
+                                // console.log('user profile updated done.')
+                                navigate(location.state || '/');
+                            })
+                            .catch(error => console.log(error))
+                    })
+
+
+
             })
             .catch(error => {
-                console.log(error);
+                console.log(error)
             })
-
     }
 
     return (

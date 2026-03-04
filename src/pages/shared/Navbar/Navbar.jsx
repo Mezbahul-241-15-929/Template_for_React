@@ -115,16 +115,54 @@ const Navbar = () => {
 
             {/* Mobile Menu */}
             {isMenuOpen && (
-                <div className="md:hidden bg-white border-t border-gray-100 animate-in fade-in slide-in-from-top-2">
-                    <div className="px-2 pt-2 pb-3 flex flex-col space-y-1">
-                        {links}
-                        <div className="pt-4 border-t border-gray-200">
-                            <button className={signInBtnMobileClass}>
-                                <AiOutlineUser size={20} /> Sign In
-                            </button>
+                <>
+                    {
+                        user ? <div className='hidden md:flex items-center gap-4'>
+                            <button onClick={handleSignOut} className={signInBtnClass}>Sign Out</button>
+                        </div>
+                            :
+                            <Link to='login'>
+                                <div className="hidden md:flex items-center gap-4">
+                                    <button className={signInBtnClass}>
+                                        <AiOutlineUser size={20} /> Sign In
+                                    </button>
+                                </div>
+                            </Link>
+
+                    }
+
+                    <div className="md:hidden bg-white border-t border-gray-100 animate-in fade-in slide-in-from-top-2">
+                        <div className="px-2 pt-2 pb-3 flex flex-col space-y-1">
+                            {links}
+                            {
+                                user ? <div className="pt-4 border-t border-gray-200">
+                                    <button
+                                        onClick={() => {
+                                            handleSignOut();
+                                            setIsMenuOpen(false);
+                                        }}
+                                        className={signInBtnMobileClass}
+                                    >
+                                        Sign Out
+                                    </button>
+                                </div> :
+
+
+                                    <Link to='login'>
+                                        <div className="pt-4 border-t border-gray-200">
+                                            <button className={signInBtnMobileClass}>
+                                                <AiOutlineUser size={20} /> Sign In
+                                            </button>
+                                        </div>
+                                    </Link>
+                            }
                         </div>
                     </div>
-                </div>
+                </>
+
+
+
+
             )}
         </nav>
     );
