@@ -1,13 +1,25 @@
 import { Link, NavLink } from 'react-router';
-import { FiMenu, FiX, FiHome, FiShoppingCart, FiInfo, FiMail } from 'react-icons/fi';
+import { FiMenu, FiX, FiHome, FiShoppingCart, FiInfo, FiMail, FiUser, FiSettings, FiLogOut } from 'react-icons/fi';
 import { AiOutlineUser } from 'react-icons/ai';
 import { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
+
+
 
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { user, logOut } = useAuth();
+
+    const { data: profile } = useQuery({
+        queryKey: ["profile", user?.email],
+        enabled: !!user?.email,
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/users/${user.email}`);
+            return res.data;
+        },
+    });
 
     const handleSignOut = () => {
         logOut().then(() => {
@@ -83,17 +95,69 @@ const Navbar = () => {
 
                     {/* Right Side Actions */}
                     {
-                        user ? <div className='hidden md:flex items-center gap-4'>
-                            <button onClick={handleSignOut} className={signInBtnClass}>Sign Out</button>
-                        </div>
-                            :
+                        user ? (
+                            <div className='hidden md:flex items-center gap-4'>
+                                <div className="flex items-center gap-3">
+                                    {/* Avatar + name (dropdown trigger) */}
+                                    <div className="dropdown dropdown-end ">
+                                        <label tabIndex={0} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg flex items-center gap-3 cursor-pointer p-1 lg:pr-5 rounded-full hover:bg-gray-100 transition">
+                                            <div className="relative">
+                                                <div className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-gray-100 shadow-sm">
+                                                    <img
+                                                        alt="User avatar"
+                                                        src={user?.photoURL || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                                {/* online indicator */}
+                                                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 ring-2 ring-white rounded-full" />
+                                            </div>
+
+                                            <div className="hidden lg:flex flex-col text-left">
+                                                <span className="text-sm font-medium  leading-tight">
+                                                    {profile?.displayName || 'Welcome'}
+                                                </span>
+                                                <span className="text-xs  leading-tight">
+                                                    {user?.email || 'User'}
+                                                </span>
+                                            </div>
+                                        </label>
+
+                                        <ul
+                                            tabIndex={0}
+                                            className="menu menu-sm dropdown-content bg-white rounded-box z-10 mt-3 w-56 p-2 shadow-lg border"
+                                        >
+                                            <li>
+                                                <NavLink to="/profile" className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50">
+                                                    <FiUser /> Profile
+                                                </NavLink>
+                                            </li>
+                                            <li>
+                                                <NavLink to="/settings" className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50">
+                                                    <FiSettings /> Settings
+                                                </NavLink>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    onClick={handleSignOut}
+                                                    className="w-full text-left flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50 text-red-600"
+                                                >
+                                                    <FiLogOut /> Logout
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
                             <Link to='login'>
-                                <div className="hidden md:flex items-center gap-4">
-                                    <button className={signInBtnClass}>
-                                        <AiOutlineUser size={20} /> Sign In
+                                <div className=" hidden md:flex items-center gap-4">
+                                    <button className={signInBtnClass + ' cursor-pointer flex items-center gap-2'}>
+                                        <AiOutlineUser size={18} /> Sign In
                                     </button>
                                 </div>
                             </Link>
+                        )
                     }
 
 
@@ -116,53 +180,94 @@ const Navbar = () => {
             {/* Mobile Menu */}
             {isMenuOpen && (
                 <>
-                    {
-                        user ? <div className='hidden md:flex items-center gap-4'>
-                            <button onClick={handleSignOut} className={signInBtnClass}>Sign Out</button>
-                        </div>
-                            :
-                            <Link to='login'>
-                                <div className="hidden md:flex items-center gap-4">
-                                    <button className={signInBtnClass}>
-                                        <AiOutlineUser size={20} /> Sign In
-                                    </button>
-                                </div>
-                            </Link>
+                    <div className="fixed inset-0 z-40 md:hidden">
+                        {/* Backdrop */}
+                        <div
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                            onClick={() => setIsMenuOpen(false)}
+                            aria-hidden="true"
+                        />
 
-                    }
-
-                    <div className="md:hidden bg-white border-t border-gray-100 animate-in fade-in slide-in-from-top-2">
-                        <div className="px-2 pt-2 pb-3 flex flex-col space-y-1">
-                            {links}
-                            {
-                                user ? <div className="pt-4 border-t border-gray-200">
-                                    <button
-                                        onClick={() => {
-                                            handleSignOut();
-                                            setIsMenuOpen(false);
-                                        }}
-                                        className={signInBtnMobileClass}
-                                    >
-                                        Sign Out
-                                    </button>
-                                </div> :
-
-
-                                    <Link to='login'>
-                                        <div className="pt-4 border-t border-gray-200">
-                                            <button className={signInBtnMobileClass}>
-                                                <AiOutlineUser size={20} /> Sign In
-                                            </button>
+                        {/* Panel */}
+                        <div className="absolute top-16 left-4 right-4 bg-white rounded-lg shadow-xl p-4 transform transition-transform duration-300 ease-out">
+                            <div className="flex items-center justify-between">
+                                {/* Avatar + name */}
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                                        <img
+                                            src={user?.photoURL || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                                            alt="User avatar"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div>
+                                        <div className="font-medium text-gray-800">
+                                            {profile?.displayName || 'Welcome'}
                                         </div>
+                                        {user?.email && <div className="text-sm text-gray-500">{user.email}</div>}
+                                    </div>
+                                </div>
+
+                                {/* Close button */}
+                                <button
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="p-2 rounded-md hover:bg-gray-100 text-gray-700"
+                                    aria-label="Close menu"
+                                >
+                                    <FiX size={20} />
+                                </button>
+                            </div>
+
+                            {/* Links */}
+                            <div className="mt-4 grid gap-2">
+                                {links}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="mt-4 border-t pt-4 flex flex-col gap-2">
+                                {user ? (
+                                    <>
+                                        <NavLink
+                                            to="/profile"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className={({ isActive }) =>
+                                                `w-full text-left px-4 py-2 rounded-lg transition ${isActive ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-50'}`
+                                            }
+                                        >
+                                            Profile
+                                        </NavLink>
+
+                                        <NavLink
+                                            to="/settings"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className={({ isActive }) =>
+                                                `w-full text-left px-4 py-2 rounded-lg transition ${isActive ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-50'}`
+                                            }
+                                        >
+                                            Settings
+                                        </NavLink>
+
+                                        <button
+                                            onClick={() => {
+                                                handleSignOut();
+                                                setIsMenuOpen(false);
+                                            }}
+                                            className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:opacity-95 transition"
+                                        >
+                                            Logout
+                                        </button>
+                                    </>
+                                ) : (
+                                    <Link to="login" onClick={() => setIsMenuOpen(false)}>
+                                        <button className="cursor-pointer w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg">
+                                            <AiOutlineUser size={18} className="inline-block mr-2" /> Sign In
+                                        </button>
                                     </Link>
-                            }
+                                )}
+                            </div>
                         </div>
                     </div>
                 </>
-
-
-
-
             )}
         </nav>
     );

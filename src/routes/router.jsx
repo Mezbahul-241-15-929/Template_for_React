@@ -8,6 +8,9 @@ import Contact from "../pages/Contact/Contact";
 import AuthLayout from "../layouts/AuthLayout";
 import Login from "../pages/Auth/Login/Login";
 import Register from "../pages/Auth/Register/Register";
+import Profile from "../pages/Profile/Profile";
+import PrivateRoute from "./PrivateRoute";
+import Profile2 from "../pages/Profile/Profile2";
 
 export const router = createBrowserRouter([
     {
@@ -30,6 +33,10 @@ export const router = createBrowserRouter([
                 path: "/contact",
                 Component: Contact
             },
+            {
+                path: "/profile",
+                element: <PrivateRoute><Profile></Profile></PrivateRoute>,
+            }
         ]
 
     },
